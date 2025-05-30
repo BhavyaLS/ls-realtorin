@@ -12,13 +12,26 @@ import { FaLocationDot } from "react-icons/fa6";
 import { GoogleMap, Marker, LoadScript } from '@react-google-maps/api';
 import debounce from 'lodash/debounce';
 import Loader from '../(components)/loader';
+import Cookies from 'js-cookie';
 
 const Page = () => {
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [favorites, setFavorites] = useState(JSON.parse(localStorage.getItem('favorites')) || []);
+  // const [favorites, setFavorites] = useState(JSON.parse(localStorage.getItem('favorites')) || []);
+    // const [favorites, setFavorites] = useState(JSON.parse(Cookies.get('favorites')) || []);
+
+    const [favorites, setFavorites] = useState(() => {
+  const favoritesCookie = Cookies.get('favorites');
+  try {
+    return favoritesCookie ? JSON.parse(favoritesCookie) : [];
+  } catch (e) {
+    console.warn('Error parsing favorites cookie:', e);
+    return [];
+  }
+});
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [transactionType, setTransactionType] = useState('');
@@ -145,7 +158,8 @@ const Page = () => {
   const toggleFavorite = (id) => {
     setFavorites((prev) => {
       const newFavorites = prev.includes(id) ? prev.filter((favId) => favId !== id) : [...prev, id];
-      localStorage.setItem('favorites', JSON.stringify(newFavorites));
+      // localStorage.setItem('favorites', JSON.stringify(newFavorites));
+      Cookies.set("favorites", JSON.stringify(newFavorites))
       return newFavorites;
     });
   };
